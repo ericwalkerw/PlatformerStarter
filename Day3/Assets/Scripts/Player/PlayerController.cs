@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(Rigidbody2D), typeof(TouchingObject))]
@@ -9,6 +9,7 @@ public class PlayerController : MonoBehaviour
     public float jumpForce = 8f;
     Vector2 moveInput;
     TouchingObject touchingDirections;
+    Health health;
     public float CurrentMoveSpeed
     {
         get
@@ -59,8 +60,8 @@ public class PlayerController : MonoBehaviour
         anim = GetComponentInChildren<Animator>();
         rb = GetComponent<Rigidbody2D>();
         touchingDirections = GetComponent<TouchingObject>();
+        health = GetComponent<Health>();
     }
-
     private void FixedUpdate()
     {
         float horizontal = Input.GetAxis("Horizontal");
@@ -110,10 +111,12 @@ public class PlayerController : MonoBehaviour
         if (h > 0)
         {
             transform.localScale = Vector2.one;
+            health.hpBar.fillOrigin = 1;
         }
         else if (h < 0)
         {
             transform.localScale = new Vector2(-1, 1);
+            health.hpBar.fillOrigin = 0;
         }
     }
 }
