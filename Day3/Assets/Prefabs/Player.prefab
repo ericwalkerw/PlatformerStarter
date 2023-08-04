@@ -341,6 +341,7 @@ GameObject:
   - component: {fileID: 1804526213063737911}
   - component: {fileID: 4468825890491828840}
   - component: {fileID: 7341009479958426102}
+  - component: {fileID: 2952115544378930938}
   m_Layer: 3
   m_Name: Player
   m_TagString: Player
@@ -582,6 +583,18 @@ MonoBehaviour:
         m_CallState: 2
     m_ActionId: fa646811-00e0-45ab-8507-f8b1e62ab7fa
     m_ActionName: Player/Jump[/Keyboard/space]
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: e03038fd-adac-4a40-81ab-32c503d14a52
+    m_ActionName: Player/buff1[/Keyboard/1]
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: e163d423-bc71-4ffe-9b22-d699b35814d3
+    m_ActionName: Player/buff2[/Keyboard/2]
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: c2c74cbe-f93e-42db-abc5-4b198f49afae
+    m_ActionName: Player/buff3[/Keyboard/3]
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: Player
@@ -602,6 +615,18 @@ MonoBehaviour:
   maxHP: 100
   damage: 15
   hpBar: {fileID: 654006603}
+--- !u!114 &2952115544378930938
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2647369299705784235}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d72e1ab7ce2fa604ea278712b96bdde8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &2647369299797515825
 GameObject:
   m_ObjectHideFlags: 0

@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class PlayerEvent : MonoBehaviour
 {
@@ -13,5 +14,15 @@ public class PlayerEvent : MonoBehaviour
         {
             colliderPlayer.gameObject.SetActive(false);
         }
+    }
+
+    public void QuitGame()
+    {
+        Application.Quit();
+    }
+
+    public void Load()
+    {
+        SceneManager.LoadScene(0);
     }
 }

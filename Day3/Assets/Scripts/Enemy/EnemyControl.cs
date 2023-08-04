@@ -30,7 +30,6 @@ public class EnemyControl : MonoBehaviour
         Vector3 moveDirection = direction == EnemyDirection.Left ? Vector3.left : Vector3.right;
         rb.MovePosition(transform.position + moveDirection * Time.fixedDeltaTime * speed);
         distanceToMove -= Time.fixedDeltaTime * speed;
-        AnimUpdate();
     }
 
     protected virtual void GetDirection()
@@ -38,8 +37,10 @@ public class EnemyControl : MonoBehaviour
         direction = direction == EnemyDirection.Left ? EnemyDirection.Right : EnemyDirection.Left;
     }
 
-    void AnimUpdate()
+    public void Die()
     {
-
+        speed = 0;
+        anim.SetTrigger(AnimationString.isDead);
+        Destroy(gameObject, 1);
     }
 }

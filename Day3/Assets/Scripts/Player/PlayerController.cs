@@ -1,5 +1,5 @@
-﻿using UnityEngine;
-using UnityEngine.InputSystem;
+﻿using System.Collections;
+using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody2D), typeof(TouchingObject))]
 public class PlayerController : MonoBehaviour
@@ -7,10 +7,19 @@ public class PlayerController : MonoBehaviour
     public float walkSpeed = 5f;
     public float runSpeed = 8f;
     public float jumpForce = 8f;
-    Vector2 moveInput;
-    TouchingObject touchingDirections;
-    Health health;
-    public float CurrentMoveSpeed
+    public int AttackSpeedMulti = 1;
+    private Vector2 moveInput;
+
+    private bool isRunning = false;
+    public bool isAttacking = false;
+
+    [HideInInspector] private Rigidbody2D rb;
+    [HideInInspector] private Animator anim;
+    private TouchingObject touchingDirections;
+    private Health health;
+
+    #region Properties
+    private float CurrentMoveSpeed
     {
         get
         {
@@ -18,7 +27,7 @@ public class PlayerController : MonoBehaviour
             {
                 if (IsMoving && touchingDirections.IsGrounded)
                 {
-                    if (IsRunning) return runSpeed;
+                    if (isRunning) return runSpeed;
                     else return walkSpeed;
                 }
                 return 0;
@@ -27,34 +36,11 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    [SerializeField]
-    private bool _isMoving = false;
-    public bool IsMoving
-    {
-        get => _isMoving;
-        private set
-        {
-            _isMoving = value;
-            anim.SetBool(AnimationString.isMoving, value);
-        }
-    }
+    private bool IsMoving { get => moveInput != Vector2.zero; }
 
-    [SerializeField]
-    private bool _isRunning = false;
-    public bool IsRunning
-    {
-        get => _isRunning;
-        set
-        {
-            _isRunning = value;
-            anim.SetBool(AnimationString.isRunning, value);
-        }
-    }
+    private bool CanMove { get => anim.GetBool(AnimationString.canMove); }
+    #endregion
 
-    public bool CanMove { get => anim.GetBool(AnimationString.canMove); }
-
-    Rigidbody2D rb;
-    Animator anim;
     private void Awake()
     {
         anim = GetComponentInChildren<Animator>();
@@ -62,50 +48,97 @@ public class PlayerController : MonoBehaviour
         touchingDirections = GetComponent<TouchingObject>();
         health = GetComponent<Health>();
     }
+
     private void FixedUpdate()
     {
-        float horizontal = Input.GetAxis("Horizontal");
+        float horizontal = moveInput.x;
         rb.velocity = new Vector2(horizontal * CurrentMoveSpeed, rb.velocity.y);
         Flip(horizontal);
     }
 
-    public void OnMove(InputAction.CallbackContext context)
+    #region Controller
+    public void UpdateMoveInput(Vector2 input)
     {
-        moveInput = context.ReadValue<Vector2>();
-
-        IsMoving = moveInput != Vector2.zero;
+        moveInput = input;
+        bool isMoving = moveInput != Vector2.zero;
+        anim.SetBool(AnimationString.isMoving, isMoving);
     }
 
-    public void OnRun(InputAction.CallbackContext context)
+    public void StartRunning()
     {
-        if (context.started)
-        {
-            IsRunning = true;
-        }
-        else if (context.canceled)
-        {
-            IsRunning = false;
-        }
+        isRunning = true;
+        anim.SetBool(AnimationString.isRunning, true);
     }
 
-    public void OnJump(InputAction.CallbackContext context)
+    public void StopRunning()
     {
-        if (context.started && touchingDirections.IsGrounded && CanMove)
+        isRunning = false;
+        anim.SetBool(AnimationString.isRunning, false);
+    }
+
+    public void Jump()
+    {
+        if (touchingDirections.IsGrounded && CanMove)
         {
             anim.SetTrigger(AnimationString.jumpTrigger);
             rb.velocity = new Vector2(rb.velocity.x, jumpForce);
         }
     }
 
-    public void OnAttack(InputAction.CallbackContext context)
+    public void Attack()
     {
-        if (context.started)
-        {
-            anim.SetInteger(AnimationString.attackIndex, Random.Range(0, 2));
+        anim.SetInteger(AnimationString.attackIndex, Random.Range(0, 2));
+        if (CanMove)
             anim.SetTrigger(AnimationString.attackTrigger);
+    }
+    public void ApplyDamageBuff()
+    {
+        if (CanMove)
+        {
+            health.BuffDamage();
+            anim.SetInteger(AnimationString.buffIndex, 0);
+            anim.SetTrigger(AnimationString.buffTrigger);
         }
     }
 
+
+    public void ApplyHealthBuff()
+    {
+        if (CanMove)
+        {
+            health.BuffHealth();
+            anim.SetInteger(AnimationString.buffIndex, 1);
+            anim.SetTrigger(AnimationString.buffTrigger);
+        }
+    }
+
+    private bool isBuffed = false;
+
+    public void ApplyAttackSpeedBuff()
+    {
+        if (CanMove && !isBuffed)
+        {
+            isBuffed = true;
+            StartCoroutine(BuffDuration());
+        }
+    }
+
+    private IEnumerator BuffDuration()
+    {
+        int baseSpeed = AttackSpeedMulti;
+        AttackSpeedMulti *= 3;
+
+        anim.SetInteger(AnimationString.buffIndex, 2);
+        anim.SetTrigger(AnimationString.buffTrigger);
+        anim.SetFloat(AnimationString.attackSpeedMulti, AttackSpeedMulti);
+
+        yield return new WaitForSeconds(5f);
+
+        AttackSpeedMulti = baseSpeed;
+        anim.SetFloat(AnimationString.attackSpeedMulti, AttackSpeedMulti);
+        isBuffed = false;
+    }
+    #endregion
     private void Flip(float h)
     {
         if (h > 0)
